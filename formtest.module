@@ -1,0 +1,115 @@
+<?php
+
+function formtest_menu() {
+  $items = array();
+  
+  $items['test-page'] = array(
+    'title' => 'Test Page',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('formtest_test_form'),
+    'access callback' => TRUE,
+  );
+  
+  return $items;
+}
+
+function formtest_theme() {
+  $items = array();
+  
+  $path = drupal_get_path('module', 'formtest');
+  
+  $items['formtest_test_form'] = array(
+      'render element' => 'form',
+      'template' => 'templates/formtest-test-form',
+  );
+  
+  $items['my_container_custom'] = array(
+      'render element' => 'element',
+      'template' => 'templates/my-container-custom',
+  );
+  
+  return $items;
+}
+
+function formtest_test_form($form, $form_state) {
+
+  $form = array();
+  
+  $form['item_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Item 1'),
+    '#description' =>  (!empty($form_state['values']['item_2'])
+      ? $form_state['values']['item_2'] : t("Not changed yet")),
+    
+  );
+  
+  $form['my_container'] = array(
+    '#type' => 'container',
+    '#tree' => FALSE,
+    '#prefix' => '<div id="item-1-wrapper">',
+    '#suffix' => '</div>',
+    '#theme' => 'my_container_custom',
+  );
+  
+  $form['my_container']['inside_1'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Inside container...'),  
+    '#description' => time(),
+  );
+  
+  
+  $form['item_2'] = array(
+    '#type' => 'select',
+    '#title' => t('Item 2'),
+    '#options' => array(
+      'noah' => 'Noah Lively',
+      'sam'  => 'Sam Lively',
+      'rob'  => 'Robert Lazrovich',
+      'therese' => 'Therese Hardesty'
+    ),
+    '#ajax' => array(
+      'callback' => 'formtest_ajax_callback',
+      'wrapper' => 'item-1-wrapper'
+    ),
+  );
+  
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+  );
+  
+  
+  return $form;
+
+}
+
+function template_preprocess_formtest_test_form(&$variables) {
+  $variables['my_form'] = array();
+  $hidden = array();
+
+  foreach (element_children($variables['form']) as $key) {
+    $type = (array_key_exists('#type', $variables['form'][$key])) ? $variables['form'][$key]['#type'] : '';
+    if ($type == 'hidden' || $type == 'token') {
+      $hidden[] = drupal_render($variables['form'][$key]);
+    }
+    else {
+      $variables['my_form'][$key] = drupal_render($variables['form'][$key]);
+    }
+  }
+
+  $variables['my_form']['hidden'] = implode($hidden);
+  $variables['my_form_combined'] = implode($variables['my_form']);
+}
+
+function template_preprocess_my_container_custom(&$variables) {
+  foreach(element_children($variables['element']) as $key) {
+    $variables['rendered'][$key] = drupal_render($variables['element'][$key]);
+  }
+  $variables['element_rendered'] = implode($variables['rendered']);
+}
+
+
+function formtest_ajax_callback($form, $form_state) {
+  return $form['my_container'];
+}
