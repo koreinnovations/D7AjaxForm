@@ -67,9 +67,27 @@ function formtest_test_form($form, $form_state) {
       'rob'  => 'Robert Lazrovich',
       'therese' => 'Therese Hardesty'
     ),
+    '#description' => t('When you change this element it will trigger an AJAX re-rendering of a custom-themed form element group'),
     '#ajax' => array(
       'callback' => 'formtest_ajax_callback',
       'wrapper' => 'item-1-wrapper'
+    ),
+  );
+  
+  
+  
+  $form['item_3'] = array(
+    '#type' => 'select',
+    '#title' => t('Item 3'),
+    '#options' => array(
+      'noah' => 'Noah Lively',
+      'sam'  => 'Sam Lively',
+      'rob'  => 'Robert Lazrovich',
+      'therese' => 'Therese Hardesty'
+    ),
+    '#description' => t('When you change this element it will trigger an AJAX callback that provides a list of custom commands'),
+    '#ajax' => array(
+      'callback' => 'formtest_ajax_callback_custom_commands',
     ),
   );
   
@@ -112,4 +130,13 @@ function template_preprocess_my_container_custom(&$variables) {
 
 function formtest_ajax_callback($form, $form_state) {
   return $form['my_container'];
+}
+
+function formtest_ajax_callback_custom_commands($form, $form_state) {
+  $commands = array();
+  $commands[] = ajax_command_invoke('#item-1-wrapper', 'hide');
+  $commands[] = ajax_command_invoke('#item-1-wrapper', 'fadeIn');
+  $commands[] = ajax_command_alert("Test!");
+  
+  return array('#type' => 'ajax', '#commands' => $commands);
 }

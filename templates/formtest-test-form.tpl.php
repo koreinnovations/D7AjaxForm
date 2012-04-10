@@ -12,9 +12,12 @@ print $variables['my_form']['hidden'];
   
   <?php print $variables['my_form']['item_2']; ?>
   
-  <hr />
   
   <?php print $variables['my_form']['my_container']; ?>
+  
+  <hr />
+  
+  <?php print $variables['my_form']['item_3']; ?>
   
   <hr />
   
