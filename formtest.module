@@ -38,8 +38,7 @@ function formtest_test_form($form, $form_state) {
   $form['item_1'] = array(
     '#type' => 'textfield',
     '#title' => t('Item 1'),
-    '#description' =>  (!empty($form_state['values']['item_2'])
-      ? $form_state['values']['item_2'] : t("Not changed yet")),
+    '#description' =>  t('This doesn\'t do anything.'),
     
   );
   
